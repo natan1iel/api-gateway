@@ -1,0 +1,27 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: auth
+          uri: ${AUTH_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/auth/**
+
+        - id: quadras
+          uri: ${QUADRAS_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/quadras/**
+
+        - id: reservas
+          uri: ${RESERVAS_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/reservas/**
+
+jwt:
+  secret: ${JWT_SECRET:key-jwt-reserva-quadras-volei-2026-secret}

@@ -1,0 +1,7 @@
+# O Dockerfile compila o projeto do zero dentro do container. Mandar o
+# target/ da máquina junto só deixaria o build mais lento — e poderia
+# empacotar um jar velho por engano.
+target/
+*.iml
+.idea/
+.vscode/
