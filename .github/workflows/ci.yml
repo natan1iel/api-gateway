@@ -29,3 +29,9 @@ jobs:
         with:
           name: jacoco-report
           path: target/site/jacoco/
+
+      - name: Analise SonarCloud
+        if: github.event_name == 'push'
+        run: mvn -B sonar:sonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
