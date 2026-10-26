@@ -20,6 +20,9 @@
         <java.version>21</java.version>
         <spring-cloud.version>2023.0.3</spring-cloud.version>
         <jjwt.version>0.12.6</jjwt.version>
+        <sonar.organization>natan1iel</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.projectKey>natan1iel_api-gateway</sonar.projectKey>
     </properties>
 
     <dependencyManagement>
@@ -68,13 +71,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
             <scope>runtime</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
