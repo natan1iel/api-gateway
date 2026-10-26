@@ -1,0 +1,76 @@
+services:
+
+  api-gateway:
+    build: .
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-key-jwt-reserva-quadras-volei-2026-secret}
+      AUTH_SERVICE_URL: http://auth-service:8080
+      QUADRAS_SERVICE_URL: http://quadras-service:8080
+      RESERVAS_SERVICE_URL: http://reservas-service:8080
+    depends_on:
+      - auth-service
+      - quadras-service
+      - reservas-service
+
+  auth-service:
+    build: ../auth-service
+    container_name: auth-service
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-key-jwt-reserva-quadras-volei-2026-secret}
+      DB_URL: jdbc:postgresql://postgres:5432/authdb
+      DB_USER: auth_user
+      DB_PASSWORD: auth123
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  quadras-service:
+    build: ../quadras-service
+    container_name: quadras-service
+    ports:
+      - "8081:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/quadrasdb
+      DB_USER: quadras_user
+      DB_PASSWORD: quadras123
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  reservas-service:
+    build: ../reservas-service
+    container_name: reservas-service
+    environment:
+      QUADRAS_SERVICE_URL: http://quadras-service:8080
+      DB_URL: jdbc:postgresql://postgres:5432/reservasdb
+      DB_USER: reservas_user
+      DB_PASSWORD: reservas123
+    depends_on:
+      quadras-service:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:
