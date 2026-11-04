@@ -67,3 +67,11 @@ jobs:
     steps:
       - name: Disparar deploy no Render
         run: curl -fsS "${{ secrets.RENDER_DEPLOY_HOOK }}"
+
+  deploy-homol:
+    needs: imagem
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disparar deploy em HOMOL
+        run: curl -fsS "${{ secrets.RENDER_DEPLOY_HOOK_HOMOL }}"
