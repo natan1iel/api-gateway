@@ -34,3 +34,12 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+      ambiente: ${AMBIENTE:local}
+  otlp:
+    metrics:
+      export:
+        enabled: ${OTLP_ENABLED:false}
+        url: ${OTLP_URL:}
+        headers:
+          Authorization: ${OTLP_AUTH:}
+        step: 60s
