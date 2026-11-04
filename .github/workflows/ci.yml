@@ -59,3 +59,11 @@ jobs:
           tags: |
             ghcr.io/natan1iel/api-gateway:${{ github.sha }}
             ghcr.io/natan1iel/api-gateway:latest
+
+  deploy:
+    needs: imagem
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disparar deploy no Render
+        run: curl -fsS "${{ secrets.RENDER_DEPLOY_HOOK }}"
