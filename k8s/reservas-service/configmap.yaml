@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: reservas-service-config
+  labels:
+    app: reservas-service
+data:
+  DB_URL: "jdbc:postgresql://postgres-service:5432/reservasdb"
+  DB_USER: "reservas_user"
+  QUADRAS_SERVICE_URL: "http://quadras-service:8080"
+  SWAGGER_ENABLED: "true"
+  AMBIENTE: "k8s"
+  OTLP_ENABLED: "false"
+  MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
+  JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError"

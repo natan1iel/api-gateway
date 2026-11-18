@@ -1,0 +1,29 @@
+# Script executado pela imagem oficial do PostgreSQL na primeira
+# inicialização (volume vazio). Cria um usuário e um banco por serviço,
+# como o db/init.sql do docker-compose, mas sem senha escrita no arquivo:
+# usuários e senhas chegam como variáveis de ambiente, vindas do ConfigMap
+# e do Secret de cada serviço.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+  labels:
+    app: postgres
+data:
+  01-criar-bancos.sh: |
+    #!/bin/bash
+    set -euo pipefail
+
+    criar_banco() {
+      local usuario="$1" senha="$2" banco="$3"
+      echo "Criando usuário ${usuario} e banco ${banco}"
+      psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname postgres \
+        -v usuario="$usuario" -v senha="$senha" -v banco="$banco" <<'SQL'
+    CREATE USER :"usuario" WITH PASSWORD :'senha';
+    CREATE DATABASE :"banco" OWNER :"usuario";
+    SQL
+    }
+
+    criar_banco "$AUTH_DB_USER"     "$AUTH_DB_PASSWORD"     authdb
+    criar_banco "$QUADRAS_DB_USER"  "$QUADRAS_DB_PASSWORD"  quadrasdb
+    criar_banco "$RESERVAS_DB_USER" "$RESERVAS_DB_PASSWORD" reservasdb

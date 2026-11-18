@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: quadras-service-config
+  labels:
+    app: quadras-service
+data:
+  DB_URL: "jdbc:postgresql://postgres-service:5432/quadrasdb"
+  DB_USER: "quadras_user"
+  SWAGGER_ENABLED: "true"
+  AMBIENTE: "k8s"
+  OTLP_ENABLED: "false"
+  MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
+  JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError"

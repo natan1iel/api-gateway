@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: reservas-service
+  labels:
+    app: reservas-service
+spec:
+  # ClusterIP: acessível só de dentro do cluster. A entrada externa é o Ingress.
+  type: ClusterIP
+  selector:
+    app: reservas-service
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
