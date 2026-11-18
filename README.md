@@ -148,6 +148,19 @@ Cada atualização chega como pull request contra a `develop` e só pode ser mes
 
 ---
 
+## Kubernetes
+
+Os quatro serviços também rodam em um cluster Minikube, com duas réplicas cada, PostgreSQL no cluster e Prometheus + Grafana coletando métricas de todos os pods. Os manifests ficam em [`k8s/`](k8s/), um diretório por serviço, e o passo a passo de execução está em [`k8s/README.md`](k8s/README.md).
+
+```bash
+minikube start --cpus 4 --memory 6144
+minikube addons enable ingress
+minikube addons enable metrics-server
+kubectl apply -R -f k8s/
+```
+
+---
+
 ## Executando localmente
 
 Pré-requisitos: Docker e Docker Compose.

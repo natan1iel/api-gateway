@@ -1,0 +1,106 @@
+# Uma única instância do PostgreSQL com três bancos (authdb, quadrasdb,
+# reservasdb), igual ao docker-compose. O banco não é um microsserviço e
+# fica com 1 réplica: duas instâncias escrevendo no mesmo volume
+# corromperiam os dados.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  # Recreate: o pod antigo libera o volume antes de o novo subir
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: postgres
+            # Subpasta: o volume montado traz um lost+found na raiz
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            # Usuário e senha de cada serviço, lidos dos arquivos do próprio serviço
+            - name: AUTH_DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-config
+                  key: DB_USER
+            - name: AUTH_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: auth-service-secret
+                  key: DB_PASSWORD
+            - name: QUADRAS_DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: quadras-service-config
+                  key: DB_USER
+            - name: QUADRAS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: quadras-service-secret
+                  key: DB_PASSWORD
+            - name: RESERVAS_DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: reservas-service-config
+                  key: DB_USER
+            - name: RESERVAS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: reservas-service-secret
+                  key: DB_PASSWORD
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\""]
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\""]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          volumeMounts:
+            - name: dados
+              mountPath: /var/lib/postgresql/data
+            - name: init
+              mountPath: /docker-entrypoint-initdb.d
+              readOnly: true
+      volumes:
+        - name: dados
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+        - name: init
+          configMap:
+            name: postgres-init
+            defaultMode: 0755

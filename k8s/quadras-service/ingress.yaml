@@ -1,0 +1,22 @@
+# Rota pública do quadras-service. O backend é o api-gateway, e não o próprio
+# serviço: o quadras-service confia nos headers X-Usuario-* que só o gateway
+# preenche depois de validar o JWT. Expor o serviço direto permitiria
+# forjar esses headers.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: quadras-service-ingress
+  labels:
+    app: quadras-service
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /quadras
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 8080

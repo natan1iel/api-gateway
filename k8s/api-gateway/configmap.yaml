@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-config
+  labels:
+    app: api-gateway
+data:
+  AUTH_SERVICE_URL: "http://auth-service:8080"
+  QUADRAS_SERVICE_URL: "http://quadras-service:8080"
+  RESERVAS_SERVICE_URL: "http://reservas-service:8080"
+  AMBIENTE: "k8s"
+  OTLP_ENABLED: "false"
+  MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
+  JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError"

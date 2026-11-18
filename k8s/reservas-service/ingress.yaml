@@ -1,0 +1,22 @@
+# Rota pública do reservas-service. O backend é o api-gateway, e não o próprio
+# serviço: o reservas-service confia nos headers X-Usuario-* que só o gateway
+# preenche depois de validar o JWT. Expor o serviço direto permitiria
+# forjar esses headers.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: reservas-service-ingress
+  labels:
+    app: reservas-service
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /reservas
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 8080

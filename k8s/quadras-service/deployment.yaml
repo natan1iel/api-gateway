@@ -1,0 +1,86 @@
+# Cadastro de quadras e grade de funcionamento.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quadras-service
+  labels:
+    app: quadras-service
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: quadras-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: quadras-service
+      annotations:
+        # Lidas pelo Prometheus para descobrir cada pod automaticamente
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8080"
+    spec:
+      enableServiceLinks: false
+      # Distribui as réplicas entre os nodes quando o cluster tem mais de um
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: quadras-service
+      # Segura o container da aplicação até o PostgreSQL aceitar conexões,
+      # evitando reinícios em sequência quando tudo sobe ao mesmo tempo.
+      initContainers:
+        - name: aguardar-postgres
+          image: postgres:16-alpine
+          command:
+            - sh
+            - -c
+            - until pg_isready -h postgres-service -p 5432; do echo "aguardando postgres"; sleep 2; done
+      containers:
+        - name: quadras-service
+          # Imagem publicada pelo pipeline de CI no GitHub Container Registry
+          image: ghcr.io/natan1iel/quadras-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: quadras-service-config
+            - secretRef:
+                name: quadras-service-secret
+          resources:
+            requests:
+              cpu: 100m
+              memory: 384Mi
+            limits:
+              cpu: "1"
+              memory: 768Mi
+          # A JVM leva alguns segundos para subir; até lá, só o startupProbe roda
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            failureThreshold: 40
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            periodSeconds: 5
+            failureThreshold: 3

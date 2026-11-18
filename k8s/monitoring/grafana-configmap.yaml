@@ -1,0 +1,42 @@
+# Configuração do Grafana e provisionamento automático: o Prometheus já
+# entra como fonte de dados e o painel aparece sem nenhum clique.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  labels:
+    app: grafana
+data:
+  # Servido em /grafana para dividir o Ingress com a aplicação
+  GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s/grafana/"
+  GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+  GF_USERS_ALLOW_SIGN_UP: "false"
+  GF_ANALYTICS_REPORTING_ENABLED: "false"
+  GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-provisioning
+  labels:
+    app: grafana
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        uid: prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus-service:9090/prometheus
+        isDefault: true
+        editable: false
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: volei
+        folder: Reserva de Quadras
+        type: file
+        disableDeletion: true
+        options:
+          path: /var/lib/grafana/dashboards
