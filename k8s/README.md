@@ -276,6 +276,19 @@ Gere algumas requisições e veja o painel **Requisições por segundo, por pod*
 for i in $(seq 1 50); do curl -s -o /dev/null http://$HOST/quadras -H "Authorization: Bearer $TOKEN"; done
 ```
 
+No PowerShell:
+
+```powershell
+$login = Invoke-RestMethod -Method Post -Uri http://127.0.0.1/auth/login -ContentType "application/json" -Body '{"email":"admin@volei.com","senha":"admin123"}'
+$h = @{ Authorization = "Bearer $($login.token)" }
+1..200 | ForEach-Object {
+  Invoke-RestMethod http://127.0.0.1/quadras -Headers $h | Out-Null
+  Invoke-RestMethod "http://127.0.0.1/reservas/horarios-livres?quadraId=1&data=2026-12-01" -Headers $h | Out-Null
+}
+```
+
+O Service do Kubernetes balanceia por **conexão TCP**, não por requisição. Um cliente que reaproveita a conexão (pool, keep-alive) manda tudo para a mesma réplica. Por isso o pool de conexões do gateway fica desligado (`SPRING_CLOUD_GATEWAY_HTTPCLIENT_POOL_TYPE=DISABLED`) e o reservas chama o quadras sem keep-alive (`-Dhttp.keepAlive=false`). Entre os pods do gateway, quem divide o tráfego é o Ingress nginx, que já balanceia requisição por requisição.
+
 ### Auto healing
 
 Em um terminal, `kubectl get pods -w`. Em outro, apague uma das réplicas:
