@@ -12,4 +12,7 @@ data:
   AMBIENTE: "k8s"
   OTLP_ENABLED: "false"
   MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
-  JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError"
+  # -Dhttp.keepAlive=false: o RestTemplate que chama o quadras-service
+  # deixa de reaproveitar a conexão, para as chamadas se dividirem entre
+  # as réplicas do quadras (o Service balanceia por conexão TCP).
+  JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError -Dhttp.keepAlive=false"
