@@ -1,5 +1,3 @@
-# Volume persistente: os dados sobrevivem à recriação do pod do banco.
-# No Minikube é atendido pelo StorageClass "standard", que já vem ativo.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

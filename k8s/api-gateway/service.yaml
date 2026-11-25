@@ -5,7 +5,6 @@ metadata:
   labels:
     app: api-gateway
 spec:
-  # ClusterIP: acessível só de dentro do cluster. A entrada externa é o Ingress.
   type: ClusterIP
   selector:
     app: api-gateway

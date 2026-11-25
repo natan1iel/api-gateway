@@ -8,10 +8,6 @@ data:
   AUTH_SERVICE_URL: "http://auth-service:8080"
   QUADRAS_SERVICE_URL: "http://quadras-service:8080"
   RESERVAS_SERVICE_URL: "http://reservas-service:8080"
-  # O Service do Kubernetes balanceia por conexão TCP, não por requisição.
-  # Com o pool de conexões ligado, o gateway reaproveita a mesma conexão e
-  # manda tudo para uma réplica só. Sem pool, cada requisição abre uma
-  # conexão nova e o tráfego se divide entre as réplicas.
   SPRING_CLOUD_GATEWAY_HTTPCLIENT_POOL_TYPE: "DISABLED"
   AMBIENTE: "k8s"
   OTLP_ENABLED: "false"

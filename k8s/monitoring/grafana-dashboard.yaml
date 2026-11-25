@@ -1,6 +1,3 @@
-# Painel do Grafana, carregado automaticamente na pasta "Reserva de Quadras".
-# Gerado a partir do JSON do dashboard; para alterar, edite no Grafana,
-# exporte o JSON e cole aqui.
 apiVersion: v1
 kind: ConfigMap
 metadata:

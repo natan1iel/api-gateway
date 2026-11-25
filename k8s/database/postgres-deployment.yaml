@@ -1,7 +1,3 @@
-# Uma única instância do PostgreSQL com três bancos (authdb, quadrasdb,
-# reservasdb), igual ao docker-compose. O banco não é um microsserviço e
-# fica com 1 réplica: duas instâncias escrevendo no mesmo volume
-# corromperiam os dados.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,7 +9,6 @@ spec:
   selector:
     matchLabels:
       app: postgres
-  # Recreate: o pod antigo libera o volume antes de o novo subir
   strategy:
     type: Recreate
   template:
@@ -31,7 +26,6 @@ spec:
           env:
             - name: POSTGRES_DB
               value: postgres
-            # Subpasta: o volume montado traz um lost+found na raiz
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
             - name: POSTGRES_USER
@@ -44,7 +38,6 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_PASSWORD
-            # Usuário e senha de cada serviço, lidos dos arquivos do próprio serviço
             - name: AUTH_DB_USER
               valueFrom:
                 configMapKeyRef:

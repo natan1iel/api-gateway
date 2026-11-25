@@ -23,7 +23,6 @@ spec:
             - --config.file=/etc/prometheus/prometheus.yml
             - --storage.tsdb.path=/prometheus
             - --storage.tsdb.retention.time=2d
-            # Servido em /prometheus para dividir o Ingress com a aplicação
             - --web.external-url=/prometheus/
             - --web.route-prefix=/prometheus
           ports:
@@ -55,7 +54,5 @@ spec:
         - name: config
           configMap:
             name: prometheus-config
-        # Métricas temporárias: somem se o pod for recriado, o que basta
-        # para um ambiente local de demonstração
         - name: dados
           emptyDir: {}

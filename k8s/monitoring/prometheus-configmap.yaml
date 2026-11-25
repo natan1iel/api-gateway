@@ -11,9 +11,6 @@ data:
       evaluation_interval: 15s
 
     scrape_configs:
-      # Cada réplica de cada microsserviço vira um alvo separado. Os pods são
-      # descobertos pela API do Kubernetes e filtrados pelas anotações
-      # prometheus.io/* do Deployment.
       - job_name: microsservicos
         kubernetes_sd_configs:
           - role: pod
@@ -38,7 +35,6 @@ data:
             regex: ([^:]+)(?::\d+)?;(\d+)
             replacement: $1:$2
             target_label: __address__
-          # Rótulos usados no Grafana para separar serviço, pod e node
           - source_labels: [__meta_kubernetes_pod_label_app]
             target_label: app
           - source_labels: [__meta_kubernetes_pod_name]
