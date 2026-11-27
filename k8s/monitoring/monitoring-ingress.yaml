@@ -1,5 +1,3 @@
-# Grafana e Prometheus no mesmo endereço da aplicação, em /grafana e
-# /prometheus. Os dois foram configurados para servir nesses subcaminhos.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

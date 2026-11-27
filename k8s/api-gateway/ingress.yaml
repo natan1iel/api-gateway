@@ -1,5 +1,3 @@
-# Porta de entrada da aplicação. Toda requisição externa chega no gateway,
-# que valida o JWT antes de encaminhar para auth, quadras ou reservas.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

@@ -1,4 +1,3 @@
-# Porta de entrada: valida o JWT e encaminha para os serviços.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -21,13 +20,11 @@ spec:
       labels:
         app: api-gateway
       annotations:
-        # Lidas pelo Prometheus para descobrir cada pod automaticamente
         prometheus.io/scrape: "true"
         prometheus.io/path: /actuator/prometheus
         prometheus.io/port: "8080"
     spec:
       enableServiceLinks: false
-      # Distribui as réplicas entre os nodes quando o cluster tem mais de um
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
@@ -37,7 +34,6 @@ spec:
               app: api-gateway
       containers:
         - name: api-gateway
-          # Imagem publicada pelo pipeline de CI no GitHub Container Registry
           image: ghcr.io/natan1iel/api-gateway:latest
           imagePullPolicy: IfNotPresent
           ports:
@@ -55,7 +51,6 @@ spec:
             limits:
               cpu: "1"
               memory: 768Mi
-          # A JVM leva alguns segundos para subir; até lá, só o startupProbe roda
           startupProbe:
             httpGet:
               path: /actuator/health/liveness

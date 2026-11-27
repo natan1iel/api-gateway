@@ -1,4 +1,3 @@
-# Agenda, horários livres e regra de sobreposição (CQRS).
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -21,13 +20,11 @@ spec:
       labels:
         app: reservas-service
       annotations:
-        # Lidas pelo Prometheus para descobrir cada pod automaticamente
         prometheus.io/scrape: "true"
         prometheus.io/path: /actuator/prometheus
         prometheus.io/port: "8080"
     spec:
       enableServiceLinks: false
-      # Distribui as réplicas entre os nodes quando o cluster tem mais de um
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
@@ -35,8 +32,6 @@ spec:
           labelSelector:
             matchLabels:
               app: reservas-service
-      # Segura o container da aplicação até o PostgreSQL aceitar conexões,
-      # evitando reinícios em sequência quando tudo sobe ao mesmo tempo.
       initContainers:
         - name: aguardar-postgres
           image: postgres:16-alpine
@@ -46,7 +41,6 @@ spec:
             - until pg_isready -h postgres-service -p 5432; do echo "aguardando postgres"; sleep 2; done
       containers:
         - name: reservas-service
-          # Imagem publicada pelo pipeline de CI no GitHub Container Registry
           image: ghcr.io/natan1iel/reservas-service:latest
           imagePullPolicy: IfNotPresent
           ports:
@@ -64,7 +58,6 @@ spec:
             limits:
               cpu: "1"
               memory: 768Mi
-          # A JVM leva alguns segundos para subir; até lá, só o startupProbe roda
           startupProbe:
             httpGet:
               path: /actuator/health/liveness

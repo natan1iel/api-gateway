@@ -1,6 +1,3 @@
-# Permissão de leitura para o Prometheus consultar a API do Kubernetes e
-# descobrir os pods sozinho. Sem isso seria preciso listar cada IP à mão,
-# e os IPs mudam a cada pod recriado ou réplica nova.
 apiVersion: v1
 kind: ServiceAccount
 metadata:
